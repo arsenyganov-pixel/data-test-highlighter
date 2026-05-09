@@ -37,7 +37,7 @@ function ensureStyle(color) {
     }
 
     .${FOCUS_CLASS} {
-      outline: 3px solid ${focusedColor} !important;
+      outline: 4px solid ${focusedColor} !important;
       outline-offset: 2px !important;
       background-color: color-mix(in srgb, ${focusedColor} 60%, transparent) !important;
       box-shadow: 0 0 0 2px color-mix(in srgb, ${focusedColor} 50%, transparent) !important;

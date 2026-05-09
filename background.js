@@ -15,7 +15,7 @@ chrome.runtime.onInstalled.addListener(async () => {
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  if (changeInfo.status !== 'complete' || !tab.url?.startsWith('http')) {
+  if (changeInfo.status !== 'complete') {
     return;
   }
 
@@ -35,6 +35,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       payload: settings,
     });
   } catch {
-    // Ignore pages where content script is unavailable.
+    // Ignore pages where content script is unavailable
+    // (e.g., chrome:// pages or restricted Chrome surfaces).
   }
 });

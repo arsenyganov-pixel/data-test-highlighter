@@ -26,14 +26,28 @@ Quick install:
 - **Chrome**: open `chrome://extensions` → enable **Developer mode** → drag and drop the `.crx` file (or use **Load unpacked** for source folder).
 - **Firefox**: open `about:debugging#/runtime/this-firefox` → click **Load Temporary Add-on** → select extension manifest file (`manifest.json`) from the project folder.
 
-## UI
+## Chrome Web Store readiness
 
-Popup contains:
+This extension is prepared for Chrome Web Store upload according to Google extension preparation guidance.
 
-1. Attribute name input
-2. Attribute value input (optional)
-3. Highlight color picker
-4. Enable/Disable toggle button
+### Single purpose
+
+- The extension has one clear purpose: highlight elements by custom test attributes on web pages.
+- There is no analytics, advertising, affiliate tracking, remote code loading, or user data collection.
+
+### Permissions rationale
+
+- `storage` — saves extension settings (`attributeName`, `attributeValue`, `highlightColor`, and toggle state).
+- Content script matches are limited to `http://*/*` and `https://*/*` only.
+- The extension does not request restricted permissions such as cookies, history, downloads, identity, or webRequest.
+
+### User data & privacy
+
+- No personal data is collected, transmitted, sold, or shared.
+- All settings stay locally in `chrome.storage.local` on the user device.
+- The extension does not make external network requests.
+
+Privacy details for store listing: see **[PRIVACY.md](./PRIVACY.md)**.
 
 ## Run locally
 
