@@ -1,6 +1,7 @@
 {
   "manifest_version": 3,
   "name": "data-test highlighter",
+  "short_name": "Test Highlighter",
   "description": "Finds elements by attribute name/value and highlights them on the page.",
   "version": "1.0.0",
   "icons": {
@@ -9,8 +10,7 @@
     "48": "data-test highlighter 48.png",
     "128": "data-test highlighter 128.png"
   },
-  "permissions": ["storage", "tabs"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": ["storage"],
   "background": {
     "service_worker": "background.js"
   },
@@ -24,7 +24,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["http://*/*", "https://*/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
