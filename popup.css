@@ -189,14 +189,53 @@ body {
   background: var(--toggle-on);
 }
 
+.status-line {
+  width: 100%;
+  min-height: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--muted);
+}
+
+.status-label {
+  flex: 0 0 auto;
+}
+
 .status {
   margin: 0;
-  min-height: 16px;
-  min-width: 24ch;
-  font-size: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.copy-btn {
+  border: none;
+  background: transparent;
   color: var(--muted);
+  font-size: 12px;
   line-height: 1;
-  white-space: nowrap;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.copy-btn:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.copy-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .status-row {
@@ -206,6 +245,24 @@ body {
   align-items: flex-start;
   justify-content: flex-start;
   gap: 4px;
+}
+
+.copy-toast {
+  margin-left: 4px;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 140ms ease, transform 140ms ease;
+  font-size: 11px;
+  color: var(--accent);
+  min-height: 11px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.copy-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .focus-controls {

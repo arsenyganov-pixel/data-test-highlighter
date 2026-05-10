@@ -15,7 +15,9 @@ The extension finds elements on the active page by:
 - attribute name (required)
 - attribute value (optional)
 
-Then it highlights matching elements with your selected color and lets you navigate through matched elements with built-in focus controls.
+Then it highlights matching elements with your selected color and lets you navigate through matched elements with built-in focus controls (▲/▼). The popup shows the current position in the result set (`Highlighted: total (current/total)`). The currently focused element is additionally emphasized in the page UI with an inverted outline color for faster visual tracking.
+
+When an element is focused, the popup also shows its attribute `value`, and you can copy that value with one click using the copy icon.
 
 It supports **live mode**: new matching elements added to DOM are highlighted automatically via `MutationObserver`.
 

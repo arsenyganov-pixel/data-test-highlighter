@@ -56,62 +56,12 @@ function getFocusedColor(color) {
   const g = parseInt(hex.slice(2, 4), 16);
   const b = parseInt(hex.slice(4, 6), 16);
 
-  const max = Math.max(r, g, b) / 255;
-  const min = Math.min(r, g, b) / 255;
-  const delta = max - min;
+  const invR = 255 - r;
+  const invG = 255 - g;
+  const invB = 255 - b;
 
-  let h = 0;
-  let s = 0;
-  const l = (max + min) / 2;
-
-  if (delta > 0) {
-    s = delta / (1 - Math.abs(2 * l - 1));
-    if (max === r / 255) {
-      h = ((g / 255 - b / 255) / delta) % 6;
-    } else if (max === g / 255) {
-      h = (b / 255 - r / 255) / delta + 2;
-    } else {
-      h = (r / 255 - g / 255) / delta + 4;
-    }
-    h = Math.round(h * 60);
-    if (h < 0) {
-      h += 360;
-    }
-  }
-
-  const boostedS = Math.min(1, s + 0.38);
-  const boostedL = Math.max(0.22, Math.min(0.5, l - 0.16));
-
-  const c = (1 - Math.abs(2 * boostedL - 1)) * boostedS;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = boostedL - c / 2;
-
-  let rr = 0;
-  let gg = 0;
-  let bb = 0;
-
-  if (h < 60) {
-    rr = c;
-    gg = x;
-  } else if (h < 120) {
-    rr = x;
-    gg = c;
-  } else if (h < 180) {
-    gg = c;
-    bb = x;
-  } else if (h < 240) {
-    gg = x;
-    bb = c;
-  } else if (h < 300) {
-    rr = x;
-    bb = c;
-  } else {
-    rr = c;
-    bb = x;
-  }
-
-  const toHex = (value) => Math.round((value + m) * 255).toString(16).padStart(2, '0');
-  return `#${toHex(rr)}${toHex(gg)}${toHex(bb)}`;
+  const toHex = (value) => value.toString(16).padStart(2, '0');
+  return `#${toHex(invR)}${toHex(invG)}${toHex(invB)}`;
 }
 
 function clearHighlight() {
