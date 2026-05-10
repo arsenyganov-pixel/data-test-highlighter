@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "data-test highlighter",
+  "short_name": "Test Highlighter",
+  "description": "Finds elements by attribute name/value and highlights them on the page.",
+  "version": "1.0.1",
+  "icons": {
+    "16": "data-test highlighter 16.png",
+    "32": "data-test highlighter 32.png",
+    "48": "data-test highlighter 48.png",
+    "128": "data-test highlighter 128.png"
+  },
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "data-test highlighter",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "data-test highlighter 16.png",
+      "32": "data-test highlighter 32.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
