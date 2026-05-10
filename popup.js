@@ -14,13 +14,55 @@ const els = {
   themeToggle: document.getElementById('themeToggle'),
   focusPrev: document.getElementById('focusPrev'),
   focusNext: document.getElementById('focusNext'),
+  statusLine: document.getElementById('statusLine'),
+  statusLabel: document.getElementById('statusLabel'),
   status: document.getElementById('status'),
+  copyValueButton: document.getElementById('copyValueButton'),
+  copyToast: document.getElementById('copyToast'),
 };
 
 let currentSettings = { ...DEFAULT_SETTINGS };
 let systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 let highlightedCount = 0;
+let focusedHighlightedIndex = null;
 let autoFocusedAttributeValue = '';
+let copiedValueSource = '';
+let copyToastTimer = null;
+
+function showCopyToast(message) {
+  if (!els.copyToast) {
+    return;
+  }
+
+  if (copyToastTimer) {
+    clearTimeout(copyToastTimer);
+  }
+
+  els.copyToast.textContent = message;
+  els.copyToast.classList.add('is-visible');
+
+  copyToastTimer = setTimeout(() => {
+    els.copyToast.classList.remove('is-visible');
+  }, 1400);
+}
+
+function updateValueHoverTitle() {
+  requestAnimationFrame(() => {
+    const isValueMode = els.statusLabel.textContent === 'value:' && Boolean(els.status.textContent);
+    if (!isValueMode) {
+      els.status.removeAttribute('title');
+      return;
+    }
+
+    const isOverflowing = els.status.scrollWidth > els.status.clientWidth;
+    if (isOverflowing) {
+      els.status.title = els.status.textContent;
+      return;
+    }
+
+    els.status.removeAttribute('title');
+  });
+}
 
 function renderFocusControls() {
   const enabled = currentSettings.enabled && highlightedCount > 0;
@@ -50,30 +92,64 @@ function isValidAttributeName(name) {
   return /^[^\s"'<>\/=]+$/.test(name);
 }
 
-function setStatus(message) {
+function setStatus(message, { value = false } = {}) {
+  if (value && message) {
+    copiedValueSource = message;
+    els.statusLine.classList.add('has-value');
+    els.statusLabel.textContent = 'value:';
+    els.status.textContent = message;
+    els.copyValueButton.hidden = false;
+    els.copyValueButton.disabled = false;
+    updateValueHoverTitle();
+    return;
+  }
+
+  copiedValueSource = '';
+  els.statusLine.classList.remove('has-value');
+  els.statusLabel.textContent = '';
   els.status.textContent = message;
+  els.copyValueButton.hidden = true;
+  els.copyValueButton.disabled = true;
+  updateValueHoverTitle();
 }
 
-function formatHighlightedStatus(total, focusedIndex = null, focusedAttributeValue = '') {
+function formatToggleLabel(total, focusedIndex = null) {
   if (typeof total !== 'number') {
     return 'Highlighted: 0';
   }
 
-  const suffix = focusedAttributeValue ? `  |  value: ${focusedAttributeValue}` : '';
-
   if (focusedIndex === null) {
-    return `Highlighted: ${total}${suffix}`;
+    return `Highlighted: ${total}`;
   }
 
   const totalText = String(total);
   const currentText = String(focusedIndex + 1);
-  return `Highlighted: ${total} (${currentText}/${totalText})${suffix}`;
+  return `Highlighted: ${total} (${currentText}/${totalText})`;
 }
 
 function renderToggle(enabled) {
   els.toggleButton.classList.toggle('on', enabled);
   els.toggleButton.classList.toggle('off', !enabled);
-  els.toggleButton.textContent = enabled ? 'Disable' : 'Enable';
+  els.toggleButton.textContent = enabled
+    ? formatToggleLabel(highlightedCount, focusedHighlightedIndex)
+    : 'Highlight is disabled';
+}
+
+async function handleCopyValue() {
+  if (!copiedValueSource) {
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(copiedValueSource);
+    els.copyValueButton.textContent = '✓';
+    showCopyToast('Value copied to clipboard');
+    setTimeout(() => {
+      els.copyValueButton.textContent = '⧉';
+    }, 900);
+  } catch {
+    setStatus('Cannot copy value.');
+  }
 }
 
 async function getActiveTabId() {
@@ -85,7 +161,9 @@ async function sendSettingsToActiveTab() {
   const tabId = await getActiveTabId();
   if (!tabId) {
     highlightedCount = 0;
+    focusedHighlightedIndex = null;
     renderFocusControls();
+    renderToggle(currentSettings.enabled);
     setStatus('No active tab found.');
     return;
   }
@@ -98,28 +176,36 @@ async function sendSettingsToActiveTab() {
 
     if (!response?.ok) {
       highlightedCount = 0;
+      focusedHighlightedIndex = null;
       renderFocusControls();
+      renderToggle(currentSettings.enabled);
       setStatus(response?.error || 'Failed to apply settings.');
       return;
     }
 
     if (!currentSettings.enabled) {
       highlightedCount = 0;
+      focusedHighlightedIndex = null;
       renderFocusControls();
-      setStatus('Highlight is disabled.');
+      renderToggle(false);
+      setStatus('');
       return;
     }
 
     highlightedCount = response.matchCount || 0;
+    focusedHighlightedIndex = null;
     renderFocusControls();
+    renderToggle(true);
     const userHasValue = Boolean(els.attributeValue.value.trim());
     if (userHasValue) {
       autoFocusedAttributeValue = '';
     }
-    setStatus(formatHighlightedStatus(highlightedCount, null, autoFocusedAttributeValue));
+    setStatus(autoFocusedAttributeValue, { value: true });
   } catch (error) {
     highlightedCount = 0;
+    focusedHighlightedIndex = null;
     renderFocusControls();
+    renderToggle(currentSettings.enabled);
     setStatus('Please refresh the page and try again.');
   }
 }
@@ -214,8 +300,10 @@ async function focusHighlighted(direction) {
     autoFocusedAttributeValue = userHasValue ? '' : response.focusedAttributeValue || '';
 
     highlightedCount = response.total || highlightedCount;
+    focusedHighlightedIndex = response.currentIndex;
     renderFocusControls();
-    setStatus(formatHighlightedStatus(response.total, response.currentIndex, autoFocusedAttributeValue));
+    renderToggle(currentSettings.enabled);
+    setStatus(autoFocusedAttributeValue, { value: true });
   } catch {
     setStatus('Please refresh the page and try again.');
   }
@@ -249,7 +337,7 @@ async function init() {
   renderToggle(currentSettings.enabled);
   renderThemeButton();
   renderFocusControls();
-  setStatus(currentSettings.enabled ? 'Highlight is active.' : 'Highlight is disabled.');
+  setStatus('');
 
   els.attributeName.addEventListener('input', handleInputChange);
   els.attributeValue.addEventListener('input', handleInputChange);
@@ -258,6 +346,7 @@ async function init() {
   els.themeToggle.addEventListener('click', handleThemeToggle);
   els.focusPrev.addEventListener('click', handleFocusPrev);
   els.focusNext.addEventListener('click', handleFocusNext);
+  els.copyValueButton.addEventListener('click', handleCopyValue);
 
   if (currentSettings.enabled) {
     await sendSettingsToActiveTab();

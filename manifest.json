@@ -3,7 +3,7 @@
   "name": "data-test highlighter",
   "short_name": "Test Highlighter",
   "description": "Finds elements by attribute name/value and highlights them on the page.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icons": {
     "16": "data-test highlighter 16.png",
     "32": "data-test highlighter 32.png",
