@@ -71,7 +71,9 @@ function renderFocusControls() {
 }
 
 function syncPopupAccentColor(color) {
-  document.documentElement.style.setProperty('--popup-accent', color || '#ffeb3b');
+  const safeColor = color || '#ffeb3b';
+  const borderColor = currentSettings.enabled ? safeColor : 'var(--toggle-off)';
+  document.documentElement.style.setProperty('--popup-accent', borderColor);
 }
 
 function getSystemTheme() {
@@ -128,11 +130,14 @@ function formatToggleLabel(total, focusedIndex = null) {
 }
 
 function renderToggle(enabled) {
+  document.body.classList.toggle('highlight-disabled', !enabled);
   els.toggleButton.classList.toggle('on', enabled);
   els.toggleButton.classList.toggle('off', !enabled);
   els.toggleButton.textContent = enabled
     ? formatToggleLabel(highlightedCount, focusedHighlightedIndex)
     : 'Highlight is disabled';
+
+  syncPopupAccentColor(currentSettings.highlightColor);
 }
 
 async function handleCopyValue() {

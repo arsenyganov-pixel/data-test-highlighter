@@ -21,6 +21,8 @@ When an element is focused, the popup also shows its attribute `value`, and you 
 
 It supports **live mode**: new matching elements added to DOM are highlighted automatically via `MutationObserver`.
 
+**[Install extension from chrome web store](https://chromewebstore.google.com/detail/kpinblcifcidlaoceopihbmmgbcpcjeo)**
+
 **[Download the packaged Chrome extension file](./data-test-highlighter.crx)**
 
 Quick install:
